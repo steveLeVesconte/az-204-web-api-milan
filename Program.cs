@@ -30,6 +30,10 @@ app.MapGet("/posts", async ([FromServices] IBlogApi blogApi, [FromQuery] int? us
     return Results.Ok(posts);
 });
 
+app.MapGet("/posts/{id:int}/comments", async (int id, IBlogApi api) =>
+    await api.GetPostCommentsAsync(id));
+
+
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
