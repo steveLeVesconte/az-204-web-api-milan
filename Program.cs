@@ -1,9 +1,14 @@
+using Microsoft.AspNetCore.Mvc;
+using Refit;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddRefitClient<IBlogApi>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/"));
 
 var app = builder.Build();
 
@@ -14,7 +19,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+
+app.MapGet("/posts/{id:int}", async ([FromServices] IBlogApi blogApi, [FromRoute] int id) =>
+await blogApi.GetPostAsync(id));
+
+app.MapGet("/posts", async ([FromServices] IBlogApi blogApi, [FromQuery] int? userId) =>
+{
+    var posts = await blogApi.GetPostsAsync(userId);
+    return Results.Ok(posts);
+});
 
 var summaries = new[]
 {
